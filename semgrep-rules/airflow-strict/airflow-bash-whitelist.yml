@@ -1,0 +1,39 @@
+rules:
+  # УСИЛЕННОЕ ПРАВИЛО: BashOperator - разрешены только безопасные Jinja шаблоны
+  - id: airflow-bash-jinja-whitelist
+    message: "ОПАСНО: BashOperator использует Jinja шаблон с небезопасными переменными. Разрешены только: {{ ds }}, {{ ts }}, {{ dag }}, {{ dag_run }}, {{ task_instance }}, {{ macros }}, {{ var }}, {{ ti }}, {{ params }} (только для чтения)."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: BashOperator(..., bash_command=$CMD, ...)
+          - pattern: BashOperator(bash_command=$CMD, ...)
+      - metavariable-regex:
+          metavariable: $CMD
+          regex: .*\{\{.*(dag_run\.conf|params\[|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 – Injection"
+
+  # УСИЛЕННОЕ ПРАВИЛО: BashOperator с os.environ
+  - id: airflow-bash-os-environ
+    message: "ОПАСНО: BashOperator использует переменные окружения в команде без валидации. Это может привести к Command Injection."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: |
+              BashOperator(..., bash_command="...$ENV_VAR...", ...)
+          - pattern: |
+              BashOperator(..., bash_command='...$ENV_VAR...', ...)
+      - metavariable-regex:
+          metavariable: $ENV_VAR
+          regex: (os\.environ|os\.getenv|Variable\.get)
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 – Injection"
+

@@ -1,0 +1,32 @@
+rules:
+  - id: airflow-xcom-pickle-enabled
+    message: "КРИТИЧНО: Включен pickle для XCom. Это может привести к RCE при десериализации недоверенных данных."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: enable_xcom_pickling=True
+          - pattern: enable_xcom_pickling = True
+          - pattern: 'enable_xcom_pickling: True'
+          - pattern: "enable_xcom_pickling: True"
+    metadata:
+      category: security
+      cwe: "CWE-502: Deserialization of Untrusted Data"
+      owasp: "A08:2021 – Software and Data Integrity Failures"
+
+  - id: airflow-xcom-backend-pickle
+    message: "КРИТИЧНО: Использование pickle-based XCom backend. Рекомендуется использовать JSON backend."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: xcom_backend = "...pickle..."
+          - pattern: xcom_backend = '...pickle...'
+          - pattern: xcom_backend = Variable.get("...pickle...")
+          - pattern: xcom_backend = Variable.get('...pickle...')
+    metadata:
+      category: security
+      cwe: "CWE-502: Deserialization of Untrusted Data"
+      owasp: "A08:2021 – Software and Data Integrity Failures"

@@ -1,0 +1,83 @@
+rules:
+  # УСИЛЕННОЕ ПРАВИЛО: Запрет ЛЮБОЙ конкатенации в SQL операторах
+  - id: airflow-sql-any-concat
+    message: "ОПАСНО: SQL запрос строится через конкатенацию/интерполяцию строк. Используйте ТОЛЬКО параметризованные запросы."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $OPERATOR(..., sql=f"...", ...)
+          - pattern: |
+              $OPERATOR(..., sql="..." + ..., ...)
+          - pattern: |
+              $OPERATOR(..., sql="...".format(...), ...)
+          - pattern: |
+              $OPERATOR(..., sql="..." % ..., ...)
+          - pattern: |
+              $OPERATOR(..., sql="...".replace(..., ...), ...)
+      - metavariable-regex:
+          metavariable: $OPERATOR
+          regex: (PostgresOperator|MySqlOperator|SnowflakeOperator|BigQueryInsertJobOperator|BigQueryOperator|SqliteOperator|MSSqlOperator|OracleOperator|.*SqlOperator)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 – Injection"
+
+  # УСИЛЕННОЕ ПРАВИЛО: SQL из Variable.get() без валидации
+  - id: airflow-sql-from-variable
+    message: "ОПАСНО: SQL запрос формируется из Variable.get() без валидации. Используйте параметризованные запросы."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            $SQL = ...
+            ...
+            $OPERATOR(..., sql=$SQL, ...)
+      - pattern-either:
+          - pattern: |
+              $SQL = f"...{Variable.get(...)}..."
+          - pattern: |
+              $SQL = "...{Variable.get(...)}..."
+      - metavariable-regex:
+          metavariable: $OPERATOR
+          regex: (PostgresOperator|MySqlOperator|SnowflakeOperator|BigQueryInsertJobOperator|BigQueryOperator|SqliteOperator|MSSqlOperator|OracleOperator|.*SqlOperator)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 – Injection"
+
+  # УСИЛЕННОЕ ПРАВИЛО: SQL из os.environ без валидации
+  - id: airflow-sql-from-env
+    message: "ОПАСНО: SQL запрос формируется из переменных окружения без валидации. Используйте параметризованные запросы."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            $SQL = ...
+            ...
+            $OPERATOR(..., sql=$SQL, ...)
+      - pattern-either:
+          - pattern: |
+              $SQL = f"...{os.environ[...]}..."
+          - pattern: |
+              $SQL = "...{os.environ[...]}..."
+          - pattern: |
+              $SQL = f"...{os.getenv(...)}..."
+          - pattern: |
+              $SQL = "...{os.getenv(...)}..."
+      - metavariable-regex:
+          metavariable: $OPERATOR
+          regex: (PostgresOperator|MySqlOperator|SnowflakeOperator|BigQueryInsertJobOperator|BigQueryOperator|SqliteOperator|MSSqlOperator|OracleOperator|.*SqlOperator)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 – Injection"
+

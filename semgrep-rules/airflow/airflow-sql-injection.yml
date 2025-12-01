@@ -1,0 +1,134 @@
+rules:
+  - id: airflow-sql-concat-fstring
+    message: "ОПАСНО: SQL запрос строится через f-строку с пользовательскими данными. Используйте параметризованные запросы."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $OPERATOR(..., sql=f"...", ...)
+          - pattern: |
+              $OPERATOR(..., sql=f'...', ...)
+          - pattern: |
+              $OPERATOR(sql=f"...", ...)
+          - pattern: |
+              $OPERATOR(sql=f'...', ...)
+          - pattern-inside: |
+              def $FUNC(...):
+                ...
+                $SQL = f"..."
+                ...
+                $OPERATOR(..., sql=$SQL, ...)
+      - metavariable-regex:
+          metavariable: $OPERATOR
+          regex: (PostgresOperator|MySqlOperator|SnowflakeOperator|BigQueryInsertJobOperator|BigQueryOperator|SqliteOperator|MSSqlOperator|OracleOperator|.*SqlOperator)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-sql-concat-plus
+    message: "ОПАСНО: SQL запрос строится через конкатенацию строк (+). Используйте параметризованные запросы."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $OPERATOR(..., sql="..." + ..., ...)
+          - pattern: |
+              $OPERATOR(..., sql='...' + ..., ...)
+          - pattern: |
+              $OPERATOR(sql="..." + ..., ...)
+          - pattern: |
+              $OPERATOR(sql='...' + ..., ...)
+      - metavariable-regex:
+          metavariable: $OPERATOR
+          regex: (PostgresOperator|MySqlOperator|SnowflakeOperator|BigQueryInsertJobOperator|BigQueryOperator|SqliteOperator|MSSqlOperator|OracleOperator|.*SqlOperator)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-sql-concat-format
+    message: "ОПАСНО: SQL запрос строится через .format() с пользовательскими данными. Используйте параметризованные запросы."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $OPERATOR(..., sql="...".format(...), ...)
+          - pattern: |
+              $OPERATOR(..., sql='...'.format(...), ...)
+          - pattern: |
+              $OPERATOR(sql="...".format(...), ...)
+          - pattern: |
+              $OPERATOR(sql='...'.format(...), ...)
+      - metavariable-regex:
+          metavariable: $OPERATOR
+          regex: (PostgresOperator|MySqlOperator|SnowflakeOperator|BigQueryInsertJobOperator|BigQueryOperator|SqliteOperator|MSSqlOperator|OracleOperator|.*SqlOperator)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-sql-from-conf
+    message: "ОПАСНО: SQL запрос формируется из dag_run.conf без параметризации. Используйте параметризованные запросы."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            $SQL = ...
+            ...
+            $OPERATOR(..., sql=$SQL, ...)
+      - pattern-either:
+          - pattern: |
+              $SQL = f"...{context['dag_run'].conf[...]}..."
+          - pattern: |
+              $SQL = "...{context['dag_run'].conf[...]}..."
+          - pattern: |
+              $SQL = f"...{context['dag_run'].conf.get(...)}..."
+          - pattern: |
+              $SQL = "...{context['dag_run'].conf.get(...)}..."
+      - metavariable-regex:
+          metavariable: $OPERATOR
+          regex: (PostgresOperator|MySqlOperator|SnowflakeOperator|BigQueryInsertJobOperator|BigQueryOperator|SqliteOperator|MSSqlOperator|OracleOperator|.*SqlOperator)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-sql-from-xcom
+    message: "ОПАСНО: SQL запрос формируется из XCom без параметризации. Используйте параметризованные запросы."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            $SQL = ...
+            ...
+            $OPERATOR(..., sql=$SQL, ...)
+      - pattern-either:
+          - pattern: |
+              $SQL = f"...{context['ti'].xcom_pull(...)}..."
+          - pattern: |
+              $SQL = "...{context['ti'].xcom_pull(...)}..."
+          - pattern: |
+              $SQL = f"...{ti.xcom_pull(...)}..."
+          - pattern: |
+              $SQL = "...{ti.xcom_pull(...)}..."
+      - metavariable-regex:
+          metavariable: $OPERATOR
+          regex: (PostgresOperator|MySqlOperator|SnowflakeOperator|BigQueryInsertJobOperator|BigQueryOperator|SqliteOperator|MSSqlOperator|OracleOperator|.*SqlOperator)
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 – Injection"
+

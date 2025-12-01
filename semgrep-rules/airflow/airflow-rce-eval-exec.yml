@@ -1,0 +1,97 @@
+rules:
+  - id: airflow-eval-in-python-callable
+    message: "КРИТИЧНО: Использование eval() в функции, которая может быть использована в PythonOperator. Это может привести к Remote Code Execution."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            eval(...)
+            ...
+    metadata:
+      category: security
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-exec-in-python-callable
+    message: "КРИТИЧНО: Использование exec() в функции, которая может быть использована в PythonOperator. Это может привести к Remote Code Execution."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            exec(...)
+            ...
+    metadata:
+      category: security
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-pickle-loads
+    message: "ОПАСНО: Использование pickle.loads() в функции, которая может быть использована в PythonOperator. Это может привести к RCE при десериализации недоверенных данных."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            pickle.loads(...)
+            ...
+    metadata:
+      category: security
+      cwe: "CWE-502: Deserialization of Untrusted Data"
+      owasp: "A08:2021 – Software and Data Integrity Failures"
+
+  - id: airflow-marshal-loads
+    message: "ОПАСНО: Использование marshal.loads() в функции, которая может быть использована в PythonOperator. Это может привести к RCE при десериализации недоверенных данных."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            marshal.loads(...)
+            ...
+    metadata:
+      category: security
+      cwe: "CWE-502: Deserialization of Untrusted Data"
+      owasp: "A08:2021 – Software and Data Integrity Failures"
+
+  - id: airflow-os-system
+    message: "ОПАСНО: Использование os.system() в функции, которая может быть использована в PythonOperator. Используйте subprocess с shell=False или валидацию входных данных."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            os.system(...)
+            ...
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-subprocess-shell-true
+    message: "ОПАСНО: Использование subprocess с shell=True в функции, которая может быть использована в PythonOperator. Это может привести к Command Injection."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          def $FUNC(...):
+            ...
+            subprocess.$METHOD(..., shell=True, ...)
+            ...
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 – Injection"
+

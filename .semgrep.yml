@@ -1,0 +1,23 @@
+# Полная конфигурация Semgrep
+# Использование: semgrep --config=.semgrep.yml --config=semgrep-rules/airflow/ --config=semgrep-rules/airflow-strict/ dags/
+#
+# ПРИМЕЧАНИЕ: Semgrep не поддерживает указание путей к файлам с правилами
+# в секции rules:. Можно указать только:
+# - id: для стандартных наборов (p/security-audit, p/secrets)
+# - Полные определения правил (объекты)
+#
+# Для кастомных правил нужно использовать несколько --config в команде
+# или скрипт run_all_checks.sh
+
+rules:
+  # Стандартные правила Semgrep
+  - id: p/security-audit
+  - id: p/secrets
+
+include:
+  - "dags/**/*.py"
+
+exclude:
+  - "**/__pycache__"
+  - "**/.venv"
+  - "**/venv"

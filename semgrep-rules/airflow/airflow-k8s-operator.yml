@@ -1,0 +1,69 @@
+rules:
+  - id: airflow-k8s-unsafe-image
+    message: "ОПАСНО: KubernetesPodOperator использует image из dag_run.conf/params/xcom. Это может привести к запуску недоверенных образов."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: KubernetesPodOperator(..., image=$IMG, ...)
+          - pattern: KubernetesPodOperator(image=$IMG, ...)
+      - metavariable-regex:
+          metavariable: $IMG
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-20: Improper Input Validation"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-k8s-unsafe-env
+    message: "ОПАСНО: KubernetesPodOperator использует env_vars из dag_run.conf/params/xcom без валидации."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: KubernetesPodOperator(..., env_vars=$ENV, ...)
+          - pattern: KubernetesPodOperator(env_vars=$ENV, ...)
+      - metavariable-regex:
+          metavariable: $ENV
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-20: Improper Input Validation"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-k8s-unsafe-volumes
+    message: "ОПАСНО: KubernetesPodOperator использует volumes из dag_run.conf/params/xcom без валидации."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: KubernetesPodOperator(..., volumes=$VOL, ...)
+          - pattern: KubernetesPodOperator(volumes=$VOL, ...)
+      - metavariable-regex:
+          metavariable: $VOL
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-20: Improper Input Validation"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-docker-unsafe-image
+    message: "ОПАСНО: DockerOperator использует image из dag_run.conf/params/xcom. Это может привести к запуску недоверенных образов."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: DockerOperator(..., image=$IMG, ...)
+          - pattern: DockerOperator(image=$IMG, ...)
+      - metavariable-regex:
+          metavariable: $IMG
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-20: Improper Input Validation"
+      owasp: "A03:2021 – Injection"
+

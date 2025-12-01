@@ -1,0 +1,3 @@
+rules:
+  - id: p/security-audit
+  - semgrep-rules/airflow/airflow-bash-unsafe.yml

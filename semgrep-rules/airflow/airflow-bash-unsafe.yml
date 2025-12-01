@@ -1,0 +1,69 @@
+rules:
+  - id: airflow-bash-unsafe-jinja-conf
+    message: "ОПАСНО: BashOperator использует dag_run.conf в bash_command без валидации. Это может привести к RCE."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: BashOperator(..., bash_command=$CMD, ...)
+          - pattern: BashOperator(bash_command=$CMD, ...)
+      - metavariable-regex:
+          metavariable: $CMD
+          regex: .*\{\{.*dag_run\.conf.*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-bash-unsafe-jinja-params
+    message: "ОПАСНО: BashOperator использует params в bash_command без валидации. Это может привести к RCE."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: BashOperator(..., bash_command=$CMD, ...)
+          - pattern: BashOperator(bash_command=$CMD, ...)
+      - metavariable-regex:
+          metavariable: $CMD
+          regex: .*\{\{.*params.*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-bash-unsafe-jinja-xcom
+    message: "ОПАСНО: BashOperator использует XCom (ti.xcom_pull) в bash_command без валидации. Это может привести к RCE."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: BashOperator(..., bash_command=$CMD, ...)
+          - pattern: BashOperator(bash_command=$CMD, ...)
+      - metavariable-regex:
+          metavariable: $CMD
+          regex: .*\{\{.*(ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 – Injection"
+
+  - id: airflow-ssh-unsafe-command
+    message: "ОПАСНО: SSHOperator использует динамическую команду из dag_run.conf/params/xcom без валидации."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: SSHOperator(..., command=$CMD, ...)
+          - pattern: SSHOperator(command=$CMD, ...)
+      - metavariable-regex:
+          metavariable: $CMD
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-78: OS Command Injection"
+      owasp: "A03:2021 – Injection"
+

@@ -1,0 +1,73 @@
+rules:
+  # УСИЛЕННОЕ ПРАВИЛО: KubernetesPodOperator - securityContext из конфига
+  - id: airflow-k8s-unsafe-security-context
+    message: "КРИТИЧНО: KubernetesPodOperator использует securityContext из dag_run.conf/params/xcom. Это может привести к эскалации привилегий."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: KubernetesPodOperator(..., security_context=$SEC, ...)
+          - pattern: KubernetesPodOperator(security_context=$SEC, ...)
+      - metavariable-regex:
+          metavariable: $SEC
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-250: Execution with Unnecessary Privileges"
+      owasp: "A01:2021 – Broken Access Control"
+
+  # УСИЛЕННОЕ ПРАВИЛО: KubernetesPodOperator - serviceAccountName из конфига
+  - id: airflow-k8s-unsafe-service-account
+    message: "КРИТИЧНО: KubernetesPodOperator использует serviceAccountName из dag_run.conf/params/xcom. Это может привести к эскалации привилегий."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: KubernetesPodOperator(..., service_account_name=$SA, ...)
+          - pattern: KubernetesPodOperator(service_account_name=$SA, ...)
+      - metavariable-regex:
+          metavariable: $SA
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-250: Execution with Unnecessary Privileges"
+      owasp: "A01:2021 – Broken Access Control"
+
+  # УСИЛЕННОЕ ПРАВИЛО: KubernetesPodOperator - volume_mounts из конфига
+  - id: airflow-k8s-unsafe-volume-mounts
+    message: "ОПАСНО: KubernetesPodOperator использует volume_mounts из dag_run.conf/params/xcom. Это может привести к доступу к неавторизованным путям."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: KubernetesPodOperator(..., volume_mounts=$VM, ...)
+          - pattern: KubernetesPodOperator(volume_mounts=$VM, ...)
+      - metavariable-regex:
+          metavariable: $VM
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-22: Improper Limitation of a Pathname to a Restricted Directory"
+      owasp: "A01:2021 – Broken Access Control"
+
+  # УСИЛЕННОЕ ПРАВИЛО: KubernetesPodOperator - namespace из конфига
+  - id: airflow-k8s-unsafe-namespace
+    message: "ОПАСНО: KubernetesPodOperator использует namespace из dag_run.conf/params/xcom. Это может привести к запуску подов в неавторизованных namespace."
+    languages:
+      - python
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: KubernetesPodOperator(..., namespace=$NS, ...)
+          - pattern: KubernetesPodOperator(namespace=$NS, ...)
+      - metavariable-regex:
+          metavariable: $NS
+          regex: .*\{\{.*(dag_run\.conf|params|ti\.xcom_pull|task_instance\.xcom_pull).*\}\}.*
+    metadata:
+      category: security
+      cwe: "CWE-284: Improper Access Control"
+      owasp: "A01:2021 – Broken Access Control"
+
