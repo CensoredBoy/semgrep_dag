@@ -1,20 +1,16 @@
 from google.adk.agents.llm_agent import Agent
-from google.adk.models.registry import LLMRegistry
-from extended_lite_llm import ExtendedLiteLlm
+from google.adk.models.lite_llm import LiteLlm
 from team_tools import search_tool, save_report_tool, visit_page_tool
 
-# Initialize agent with Extended LiteLlm support
-try:
-    LLMRegistry.register(ExtendedLiteLlm)
-except Exception as e:
-    # It might be registered already in some contexts
-    pass
+# Initialize Ollama model with LiteLlm
+# Using ollama_chat/ prefix for chat completion API
+ollama_model = LiteLlm(model="ollama_chat/qwen2.5")
 
 # ---- Define Agents ----
 
 # 1. Researcher Agent
 researcher_agent = Agent(
-    model='ollama/qwen2.5',
+    model=ollama_model,
     name='researcher',
     description='Specialist in finding information on the internet.',
     instruction=(
@@ -29,7 +25,7 @@ researcher_agent = Agent(
 
 # 2. Writer Agent
 writer_agent = Agent(
-    model='ollama/qwen2.5',
+    model=ollama_model,
     name='writer',
     description='Specialist in compiling research into markdown reports.',
     instruction=(
@@ -42,7 +38,7 @@ writer_agent = Agent(
 
 # 3. Manager Agent (Root)
 root_agent = Agent(
-    model='ollama/qwen2.5',
+    model=ollama_model,
     name='cyber_security_manager',
     description='Manager of the cybersecurity research team.',
     instruction=(
