@@ -5,8 +5,12 @@ garak>=0.9.0
 # llamator  # Установка через git (см. README)
 # pyrit  # Установка через git (см. README)
 
+# Google ADK - Agent Development Kit
+google-adk>=0.5.0
+
 # Для работы с API моделей
 openai>=1.0.0
+google-genai>=1.0.0  # Для работы с Gemini API
 
 # Для работы с YAML конфигурациями
 pyyaml>=6.0

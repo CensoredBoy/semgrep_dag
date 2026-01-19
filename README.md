@@ -292,9 +292,15 @@ python examples/custom_scanner.py \
 - `llamator_example.py` - демонстрация использования Llamator
 - `pyrit_example.py` - демонстрация использования PyRIT
 - `custom_scanner.py` - кастомный сканер с методологией воспроизводимого тестирования
-- `adk_nemo_agent/` - **⭐ NEW** Полный пример безопасного агента на Google ADK + NeMo Guardrails
+- `adk_nemo_agent/` - Полный пример безопасного агента на Google ADK + NeMo Guardrails
   - `agent.py` - основной код агента с многоуровневой защитой
   - `config/` - конфигурация NeMo Guardrails (config.yml, rails.co, actions.py)
+- `adk_security_analyzer/` - **⭐ NEW** Агент-анализатор безопасности ADK агентов
+  - `agent.py` - основной агент на Google ADK с LLM
+  - `run_analyzer.py` - CLI для запуска анализа
+  - `tools/` - инструменты парсинга и анализа кода
+  - `analyzers/` - детекторы уязвимостей (jailbreak, injection, tool_abuse)
+  - `test_agents/` - примеры уязвимых и защищённых агентов
 
 ### Тестовые сценарии
 
@@ -304,9 +310,46 @@ python examples/custom_scanner.py \
 - `jailbreak.json` - сценарии для тестирования jailbreak
 - `prompt_injection.json` - сценарии для тестирования prompt injection
 
+## ADK Security Analyzer
+
+**Новый инструмент** для автоматического анализа безопасности ADK агентов.
+
+### Возможности
+
+- Статический анализ исходного кода агентов Google ADK
+- Детекция уязвимостей: Tool Abuse, Jailbreak, Prompt Injection
+- Числовая оценка защищённости (0-100)
+- Подробные рекомендации по исправлению
+
+### Быстрый старт
+
+```bash
+cd examples/adk_security_analyzer
+
+# Анализ тестовых агентов
+python run_analyzer.py
+
+# Анализ конкретного файла
+python run_analyzer.py --file test_agents/vulnerable_agent.py
+
+# Интерактивный режим
+python run_analyzer.py --interactive
+
+# Запуск с LLM агентом (требует GOOGLE_API_KEY)
+python run_analyzer.py --file agent.py --use-agent
+```
+
+### Тестовые агенты
+
+- `vulnerable_agent.py` - уязвимый агент (ожидаемая оценка: ~15/100)
+- `secure_agent.py` - защищённый агент (ожидаемая оценка: ~90/100)
+- `mixed_agent.py` - частично защищённый агент (ожидаемая оценка: ~50/100)
+
+---
+
 ## Безопасная разработка AI агентов
 
-Новый документ **[AI_Agent_Security_Report.md](AI_Agent_Security_Report.md)** содержит комплексный доклад о безопасной разработке AI агентов, включающий:
+Документ **[AI_Agent_Security_Report.md](AI_Agent_Security_Report.md)** содержит комплексный доклад о безопасной разработке AI агентов, включающий:
 
 ### Основные разделы:
 
