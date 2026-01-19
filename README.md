@@ -11,6 +11,7 @@
 - [Инструменты](#инструменты)
 - [Примеры](#примеры)
 - [Документация](#документация)
+- [Безопасная разработка AI агентов](#безопасная-разработка-ai-агентов)
 
 ## Описание
 
@@ -29,7 +30,9 @@
 
 ```
 .
-├── LLM_Vulnerabilities_Research.md  # Основной документ исследования
+├── LLM_Fundamentals.md              # Основы LLM (архитектура, RAG, агенты)
+├── LLM_Vulnerabilities_Research.md  # Исследование уязвимостей LLM
+├── AI_Agent_Security_Report.md      # Безопасная разработка AI агентов ⭐ NEW
 ├── README.md                        # Этот файл
 ├── requirements.txt                 # Зависимости Python
 ├── examples/                        # Примеры использования инструментов
@@ -289,6 +292,9 @@ python examples/custom_scanner.py \
 - `llamator_example.py` - демонстрация использования Llamator
 - `pyrit_example.py` - демонстрация использования PyRIT
 - `custom_scanner.py` - кастомный сканер с методологией воспроизводимого тестирования
+- `adk_nemo_agent/` - **⭐ NEW** Полный пример безопасного агента на Google ADK + NeMo Guardrails
+  - `agent.py` - основной код агента с многоуровневой защитой
+  - `config/` - конфигурация NeMo Guardrails (config.yml, rails.co, actions.py)
 
 ### Тестовые сценарии
 
@@ -297,6 +303,48 @@ python examples/custom_scanner.py \
 - `system_prompt_leakage.json` - сценарии для тестирования раскрытия системного промпта
 - `jailbreak.json` - сценарии для тестирования jailbreak
 - `prompt_injection.json` - сценарии для тестирования prompt injection
+
+## Безопасная разработка AI агентов
+
+Новый документ **[AI_Agent_Security_Report.md](AI_Agent_Security_Report.md)** содержит комплексный доклад о безопасной разработке AI агентов, включающий:
+
+### Основные разделы:
+
+1. **Архитектура безопасного AI агента**
+   - Эталонная архитектура с многоуровневой защитой
+   - 5 слоёв защиты: Input Guardrails → Policy Engine → Agent Core → Tool Execution → Output Guardrails
+
+2. **Жизненный цикл разработки (Secure SDLC)**
+   - Фаза 1: Планирование и проектирование (Threat Modeling, STRIDE для агентов)
+   - Фаза 2: Разработка (Guardrails, Policy Engine, Secure Tools)
+   - Фаза 3: Тестирование (Adversarial Testing, Red Teaming)
+   - Фаза 4: Развёртывание (Security Hardening, RBAC)
+   - Фаза 5: Эксплуатация (Monitoring, Incident Response)
+
+3. **Артефакты безопасности на каждом этапе**
+   - Security Requirements Document
+   - Threat Model Document
+   - Guardrails Configuration
+   - Security Test Reports
+   - Audit Logs
+
+4. **Технологии Guardrails**
+   - NeMo Guardrails (NVIDIA)
+   - Constitutional AI / Constitutional Classifier (Anthropic)
+   - Guardrails AI (Open Source)
+   - Llama Guard (Meta)
+
+5. **Угрозы и векторы атак**
+   - Prompt-level attacks (injection, jailbreak)
+   - Tool-level attacks (abuse, privilege escalation, SSRF)
+   - Agent-level attacks (goal hijacking, memory poisoning)
+   - Data-level attacks (exfiltration, system prompt leakage)
+
+6. **Чек-листы безопасности**
+   - Security Code Review Checklist
+   - Pre-Production Security Checklist
+
+---
 
 ## Безопасность и этика
 
