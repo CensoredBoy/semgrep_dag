@@ -1,16 +1,13 @@
 """
-ADK Security Analyzer - агент для анализа безопасности других ADK агентов.
+ADK Security Analyzer - агент для анализа безопасности ADK агентов.
 
-Этот модуль предоставляет инструменты для статического анализа исходного кода
-агентов Google ADK и выявления потенциальных уязвимостей:
-- Tool Abuse (небезопасное использование инструментов)
-- Jailbreak (слабые инструкции)
-- Prompt Injection (уязвимость к внедрению инструкций)
-- System Prompt Leakage (риск раскрытия системного промпта)
+Запуск через ADK Web:
+    cd examples/adk_security_analyzer
+    adk web
+
+Откройте http://localhost:8000
 """
 
-from .agent import security_analyzer_agent
+from .agent import root_agent
 
-__version__ = "1.0.0"
-__all__ = ["security_analyzer_agent"]
-
+__all__ = ["root_agent"]
