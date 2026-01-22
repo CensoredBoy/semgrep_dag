@@ -61,6 +61,9 @@ CUSTOM_ENDPOINT_URL=https://your-endpoint.com/v1/chat/completions
 CUSTOM_API_KEY=your-api-key
 CUSTOM_MODEL_NAME=your-model
 TEST_SYSTEM_PROMPT=Your secret system prompt here
+
+# Для endpoint с self-signed сертификатами:
+DISABLE_SSL_VERIFY=true
 ```
 
 ## Использование
