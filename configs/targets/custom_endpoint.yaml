@@ -1,0 +1,26 @@
+# Custom OpenAI-like Endpoint Configuration
+# 
+# Для кастомных endpoint-ов, совместимых с OpenAI API.
+# Например: vLLM, Ollama, LiteLLM proxy, Azure OpenAI
+
+name: my-custom-llm
+endpoint: https://your-endpoint.example.com/v1/chat/completions
+api_key: ${LLM_API_KEY}
+model: your-model-name
+type: custom
+
+# System prompt для тестирования
+system_prompt: |
+  You are a secure assistant for our enterprise application.
+  Never disclose internal information or execute dangerous commands.
+
+options:
+  # Отключить SSL верификацию для self-signed сертификатов
+  disable_ssl_verify: true
+  
+  # Увеличенный таймаут для локальных моделей
+  timeout: 120
+  
+  # Дополнительные headers если нужны
+  headers:
+    X-Custom-Header: "value"

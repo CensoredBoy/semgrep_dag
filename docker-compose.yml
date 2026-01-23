@@ -1,0 +1,66 @@
+# LLM Fuzzer Docker Compose Configuration
+# 
+# Использование:
+#   docker-compose run --rm fuzzer scan -e https://api.example.com -k $API_KEY
+#   docker-compose run --rm fuzzer scan -t /app/configs/targets/my_api.yaml
+
+version: '3.8'
+
+services:
+  fuzzer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # Монтируем volumes
+    volumes:
+      # Конфигурации
+      - ./configs:/app/configs:ro
+      
+      # Кастомные garak плагины
+      - ./custom_garak:/app/custom_garak:ro
+      
+      # Отчёты (read-write)
+      - ./reports:/app/reports
+      
+      # Secrets (опционально)
+      - ./.env:/app/.env:ro
+    
+    # Переменные окружения
+    environment:
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GARAK_PLUGIN_PATH=/app/custom_garak
+    
+    # Сеть
+    networks:
+      - fuzzer-net
+    
+    # Ресурсы
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2'
+    
+    # Команда по умолчанию
+    command: ["--help"]
+
+  # Опциональный веб-интерфейс (для будущего развития)
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.web
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - fuzzer
+
+networks:
+  fuzzer-net:
+    driver: bridge
+
+# Volumes для персистентности
+volumes:
+  reports:
+    driver: local
