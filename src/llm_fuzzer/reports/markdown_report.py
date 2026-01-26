@@ -126,29 +126,79 @@ class MarkdownReportGenerator(ReportGenerator):
                 lines.append(f"**Severity:** {result.severity.upper()}")
                 lines.append(f"**Category:** {result.category}")
                 lines.append(f"**Engine:** {result.engine_used}")
+                
+                # Success rate
+                if result.total_prompts > 0:
+                    lines.append(f"**Attack Success Rate:** {result.success_rate:.1f}% ({result.successful_attacks}/{result.total_prompts} prompts)")
+                
                 lines.append("")
                 
-                for i, finding in enumerate(result.findings[:5], 1):
+                # Добавляем описание атаки из каталога
+                attack_info = self._get_attack_description(result.check_id, result.category)
+                if attack_info:
+                    lines.append("**Attack Description:**")
+                    lines.append(f"> {attack_info['description']}")
+                    lines.append("")
+                    if attack_info.get('why_dangerous'):
+                        lines.append("**Why This Is Dangerous:**")
+                        lines.append(f"> {attack_info['why_dangerous']}")
+                        lines.append("")
+                    if attack_info.get('remediation'):
+                        lines.append("**Remediation:**")
+                        lines.append(f"> {attack_info['remediation']}")
+                        lines.append("")
+                
+                for i, finding in enumerate(result.findings, 1):
                     lines.append(f"#### Finding {i}")
                     lines.append("")
-                    lines.append("**Prompt:**")
+                    
+                    # Полный prompt без обрезки
+                    lines.append("**Prompt (Attack Input):**")
                     lines.append("```")
-                    lines.append(finding.prompt[:300])
+                    lines.append(finding.prompt)
                     lines.append("```")
                     lines.append("")
-                    lines.append("**Response:**")
+                    
+                    # Полный response без обрезки
+                    lines.append("**Response (Model Output):**")
                     lines.append("```")
-                    lines.append(finding.response[:400])
+                    lines.append(finding.response)
                     lines.append("```")
+                    lines.append("")
+                    
+                    # Секция "Почему уязвимо"
+                    lines.append("**Why This Is Vulnerable:**")
                     lines.append("")
                     if finding.evidence:
-                        lines.append(f"**Evidence:** {finding.evidence}")
-                        lines.append("")
+                        lines.append(f"- **Evidence:** {finding.evidence}")
+                    
+                    # Информация из metadata
+                    if finding.metadata:
+                        if "matched_patterns" in finding.metadata:
+                            patterns = finding.metadata["matched_patterns"]
+                            if patterns:
+                                lines.append(f"- **Matched Dangerous Patterns:** `{', '.join(patterns)}`")
+                        
+                        if "tool_name" in finding.metadata:
+                            lines.append(f"- **Dangerous Tool Called:** `{finding.metadata['tool_name']}`")
+                        
+                        if "arguments" in finding.metadata:
+                            args = finding.metadata["arguments"]
+                            if isinstance(args, dict):
+                                import json
+                                args_str = json.dumps(args, ensure_ascii=False, indent=2)
+                                lines.append(f"- **Tool Arguments:**")
+                                lines.append("```json")
+                                lines.append(args_str)
+                                lines.append("```")
+                        
+                        if "category" in finding.metadata:
+                            lines.append(f"- **Attack Category:** {finding.metadata['category']}")
+                    
+                    lines.append("")
                     lines.append(f"**Confidence:** {finding.confidence:.0%}")
                     lines.append("")
-                
-                if len(result.findings) > 5:
-                    lines.append(f"*... and {len(result.findings) - 5} more findings*")
+                    lines.append("---")
                     lines.append("")
         
         # Ошибки
@@ -204,18 +254,57 @@ class MarkdownReportGenerator(ReportGenerator):
         """Сгенерировать таблицу результатов."""
         lines = []
         
-        lines.append("| Status | Check | Severity | Engine | Duration | Findings |")
-        lines.append("|--------|-------|----------|--------|----------|----------|")
+        lines.append("| Status | Check | Severity | Engine | Duration | Success Rate | Findings |")
+        lines.append("|--------|-------|----------|--------|----------|--------------|----------|")
         
         for r in results:
             status = self.STATUS_EMOJI.get(r.status, "❓")
             severity = self.SEVERITY_EMOJI.get(r.severity, "")
+            
+            # Форматируем success rate
+            if r.total_prompts > 0:
+                success_rate = f"{r.success_rate:.1f}% ({r.successful_attacks}/{r.total_prompts})"
+            else:
+                success_rate = "N/A"
+            
             lines.append(
                 f"| {status} | {r.check_name} | {severity} {r.severity} | "
-                f"{r.engine_used} | {r.duration_seconds:.1f}s | {r.findings_count} |"
+                f"{r.engine_used} | {r.duration_seconds:.1f}s | {success_rate} | {r.findings_count} |"
             )
         
         return "\n".join(lines)
+    
+    def _get_attack_description(self, check_id: str, category: str) -> dict:
+        """Получить описание атаки из каталога."""
+        try:
+            from llm_fuzzer.core.attack_catalog import (
+                get_attack_info,
+                get_attacks_by_category,
+            )
+            
+            # Пробуем найти по ID
+            attack = get_attack_info(check_id)
+            if attack:
+                return {
+                    "description": attack.description,
+                    "why_dangerous": attack.why_dangerous,
+                    "remediation": attack.remediation,
+                }
+            
+            # Пробуем найти по категории
+            attacks = get_attacks_by_category(category)
+            if attacks:
+                # Берём первую атаку из категории как fallback
+                attack = attacks[0]
+                return {
+                    "description": attack.description,
+                    "why_dangerous": attack.why_dangerous,
+                    "remediation": attack.remediation,
+                }
+        except ImportError:
+            pass
+        
+        return {}
     
     def save(self, content: str, output_path: Path) -> None:
         """Сохранить отчёт в файл."""

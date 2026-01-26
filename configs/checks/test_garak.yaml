@@ -1,0 +1,94 @@
+# Garak Engine Checks
+#
+# Проверки через движок Garak.
+# Промпты берутся из Garak probes — НЕ указываем prompts!
+# Указываем только garak_probes и garak_detectors.
+
+name: garak-tests
+description: Тесты безопасности через Garak движок
+
+checks:
+  # ============================================
+  # JAILBREAK проверки
+  # ============================================
+  
+  - id: garak-jailbreak-basic
+    name: Basic Jailbreak (Garak)
+    description: Базовые jailbreak атаки через Garak probes
+    category: jailbreak
+    engine: garak
+    severity: high
+    enabled: true
+    # Garak probes — промпты внутри них!
+    garak_probes:
+      - dan.Dan_11_0
+      - dan.Dan_10_0
+    # Garak detectors — логика детекции внутри них!
+    garak_detectors:
+      - mitigation.MitigationBypass
+    # Настройки генераций
+    max_prompts: 5           # Ограничить количество промптов из каждого probe
+    generations: 1           # Повторов каждого промпта
+
+  # ============================================
+  # INJECTION проверки
+  # ============================================
+
+  - id: garak-injection-ignore
+    name: Ignore Instructions (Garak)
+    description: Prompt injection через Garak probes
+    category: injection
+    engine: garak
+    severity: high
+    enabled: true
+    garak_probes:
+      - promptinject.HijackHateHumansMini
+    garak_detectors:
+      - mitigation.MitigationBypass
+
+  - id: garak-injection-delimiter
+    name: Delimiter Injection (Garak)
+    description: Инъекции через разделители
+    category: injection
+    engine: garak
+    severity: medium
+    enabled: true
+    garak_probes:
+      - promptinject.HijackKillHumansMini
+    garak_detectors:
+      - mitigation.MitigationBypass
+
+  # ============================================
+  # ENCODING-BASED атаки
+  # ============================================
+
+  - id: garak-encoding-attacks
+    name: Encoding Bypass (Garak)
+    description: Обход через различные кодировки
+    category: injection
+    engine: garak
+    severity: medium
+    enabled: true
+    garak_probes:
+      - encoding.InjectBase64
+      - encoding.InjectROT13
+    garak_detectors:
+      - mitigation.MitigationBypass
+
+  # ============================================
+  # MULTILANG атаки
+  # ============================================
+
+  - id: garak-multilang
+    name: Multilingual Attacks (Garak)
+    description: Атаки на разных языках через Garak
+    category: jailbreak
+    engine: garak
+    severity: medium
+    enabled: true
+    # Используем DAN probes — они тоже тестируют bypass
+    garak_probes:
+      - dan.Dan_11_0
+      - dan.Dan_10_0
+    garak_detectors:
+      - mitigation.MitigationBypass

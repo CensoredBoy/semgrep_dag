@@ -1,13 +1,15 @@
 """
 Adapters module - адаптеры для различных движков сканирования.
+
+Используются реальные движки Garak и PyRIT.
 """
 
 from .base import BaseAdapter
-from .garak_adapter import GarakAdapter
-from .pyrit_adapter import PyRITAdapter
+from .real_garak_adapter import RealGarakAdapter
+from .real_pyrit_adapter import RealPyRITAdapter
 
 __all__ = [
     "BaseAdapter",
-    "GarakAdapter",
-    "PyRITAdapter",
+    "RealGarakAdapter",
+    "RealPyRITAdapter",
 ]

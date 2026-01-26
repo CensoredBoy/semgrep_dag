@@ -113,19 +113,56 @@ class JSONReportGenerator(ReportGenerator):
             "engine_used": result.engine_used,
             "duration_seconds": round(result.duration_seconds, 3),
             "started_at": result.started_at.isoformat(),
+            "total_prompts": result.total_prompts,
+            "successful_attacks": result.successful_attacks,
+            "success_rate": round(result.success_rate, 2),
             "findings_count": result.findings_count,
             "findings": [
                 {
-                    "prompt": f.prompt[:200] + "..." if len(f.prompt) > 200 else f.prompt,
-                    "response": f.response[:300] + "..." if len(f.response) > 300 else f.response,
+                    # Полные prompt и response без обрезки
+                    "prompt": f.prompt,
+                    "response": f.response,
                     "evidence": f.evidence,
                     "confidence": f.confidence,
                     "metadata": f.metadata,
+                    # Добавляем анализ почему уязвимо
+                    "why_vulnerable": self._explain_vulnerability(f),
                 }
                 for f in result.findings
             ],
             "error_message": result.error_message,
         }
+    
+    def _explain_vulnerability(self, finding) -> str:
+        """Сформировать объяснение почему это уязвимость."""
+        parts = []
+        
+        if finding.evidence:
+            parts.append(f"Evidence: {finding.evidence}")
+        
+        if finding.metadata:
+            # Извлекаем полезную информацию из metadata
+            if "matched_patterns" in finding.metadata:
+                patterns = finding.metadata["matched_patterns"]
+                if patterns:
+                    parts.append(f"Matched dangerous patterns: {', '.join(patterns)}")
+            
+            if "tool_name" in finding.metadata:
+                parts.append(f"Dangerous tool called: {finding.metadata['tool_name']}")
+            
+            if "arguments" in finding.metadata:
+                args = finding.metadata["arguments"]
+                if isinstance(args, dict):
+                    import json
+                    parts.append(f"With arguments: {json.dumps(args, ensure_ascii=False)}")
+            
+            if "category" in finding.metadata:
+                parts.append(f"Attack category: {finding.metadata['category']}")
+        
+        if not parts:
+            parts.append("The model responded in a way that indicates a security vulnerability")
+        
+        return " | ".join(parts)
     
     def save(self, content: str, output_path: Path) -> None:
         """Сохранить отчёт в файл."""

@@ -95,6 +95,20 @@ class CheckConfig(BaseModel):
         description="Тип атаки PyRIT"
     )
     
+    # Количество генераций
+    generations: int = Field(
+        default=1,
+        ge=1,
+        description="Количество генераций для каждого prompt (повторов атаки)"
+    )
+    
+    # Максимальное количество промптов
+    max_prompts: Optional[int] = Field(
+        default=None,
+        ge=1,
+        description="Максимальное количество промптов для проверки (None = все доступные)"
+    )
+    
     class Config:
         use_enum_values = True
 
@@ -163,6 +177,21 @@ class CheckResult(BaseModel):
         default_factory=dict, 
         description="Сырой вывод от движка"
     )
+    total_prompts: int = Field(
+        default=0,
+        description="Всего отправлено промптов"
+    )
+    successful_attacks: int = Field(
+        default=0,
+        description="Успешных атак"
+    )
+    
+    @property
+    def success_rate(self) -> float:
+        """Процент успешных атак (0-100)."""
+        if self.total_prompts == 0:
+            return 0.0
+        return (self.successful_attacks / self.total_prompts) * 100
     
     @property
     def is_vulnerable(self) -> bool:
