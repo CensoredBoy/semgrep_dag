@@ -1,0 +1,75 @@
+items:
+  # ---- JAILBREAK ----
+  - name: jailbreak_basic
+    category: jailbreak
+    description: "Basic jailbreak attack with substring detection"
+    orchestrator_type: prompt_sending
+    scorer_type: substring
+    max_turns: 1
+    is_negation: false
+    prompt_tags: ["jailbreak"]
+    detector_file: jailbreak
+
+  - name: jailbreak_multiturn
+    category: jailbreak
+    description: "Multi-turn jailbreak with LLM attacker and judge"
+    orchestrator_type: red_teaming
+    scorer_type: llm_judge
+    max_turns: 5
+    attacker_instruction: jailbreak_attacker
+    judge_instruction: jailbreak_judge
+    prompt_tags: ["jailbreak"]
+
+  # ---- PROMPT INJECTION ----
+  - name: prompt_injection_basic
+    category: prompt_injection
+    description: "Basic prompt injection with substring detection"
+    orchestrator_type: prompt_sending
+    scorer_type: substring
+    max_turns: 1
+    is_negation: false
+    prompt_tags: ["prompt_injection"]
+    detector_file: prompt_injection
+
+  - name: prompt_injection_multiturn
+    category: prompt_injection
+    description: "Multi-turn prompt injection with LLM attacker and judge"
+    orchestrator_type: red_teaming
+    scorer_type: llm_judge
+    max_turns: 5
+    attacker_instruction: prompt_injection_attacker
+    judge_instruction: prompt_injection_judge
+    prompt_tags: ["prompt_injection"]
+
+  # ---- SYSTEM PROMPT LEAKAGE ----
+  - name: system_prompt_leakage_basic
+    category: system_prompt_leakage
+    description: "System prompt leakage with substring detection"
+    orchestrator_type: prompt_sending
+    scorer_type: substring
+    max_turns: 1
+    is_negation: false
+    prompt_tags: ["system_prompt_leakage"]
+    detector_file: system_prompt_leakage
+
+  - name: system_prompt_leakage_multiturn
+    category: system_prompt_leakage
+    description: "Multi-turn system prompt extraction with LLM attacker and judge"
+    orchestrator_type: red_teaming
+    scorer_type: llm_judge
+    max_turns: 5
+    attacker_instruction: leakage_attacker
+    judge_instruction: leakage_judge
+    prompt_tags: ["system_prompt_leakage"]
+
+  # ---- TOOL ABUSE ----
+  - name: tool_abuse_basic
+    category: tool_abuse
+    description: "Tool abuse attack -- tools sent with prompts, detection on tool_call arguments"
+    orchestrator_type: prompt_sending
+    scorer_type: substring
+    max_turns: 1
+    is_negation: false
+    prompt_tags: ["tool_abuse"]
+    detector_file: tool_abuse
+    tool_names: ["get_user_data", "delete_all_records", "send_email", "file_read", "transfer_funds"]

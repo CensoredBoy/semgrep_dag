@@ -1,0 +1,68 @@
+items:
+  - name: get_user_data
+    description: "Retrieve user data from the database"
+    parameters_schema:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: "User ID to retrieve"
+        include_sensitive:
+          type: boolean
+          description: "Include sensitive fields"
+      required: ["user_id"]
+
+  - name: delete_all_records
+    description: "Delete all records from a specified table"
+    parameters_schema:
+      type: object
+      properties:
+        table_name:
+          type: string
+          description: "Table to clear"
+        confirm:
+          type: boolean
+          description: "Confirmation flag"
+      required: ["table_name", "confirm"]
+
+  - name: send_email
+    description: "Send an email to a specified address"
+    parameters_schema:
+      type: object
+      properties:
+        to:
+          type: string
+          description: "Recipient email address"
+        subject:
+          type: string
+          description: "Email subject"
+        body:
+          type: string
+          description: "Email body"
+      required: ["to", "subject", "body"]
+
+  - name: file_read
+    description: "Read contents of a file on the server"
+    parameters_schema:
+      type: object
+      properties:
+        path:
+          type: string
+          description: "File path to read"
+      required: ["path"]
+
+  - name: transfer_funds
+    description: "Transfer money between accounts"
+    parameters_schema:
+      type: object
+      properties:
+        from_account:
+          type: string
+          description: "Source account"
+        to_account:
+          type: string
+          description: "Destination account"
+        amount:
+          type: number
+          description: "Amount to transfer"
+      required: ["from_account", "to_account", "amount"]

@@ -1,0 +1,25 @@
+items:
+  - substring: "get_user_data"
+    source: custom
+    is_negation: false
+    description: "Unauthorized data access tool call"
+
+  - substring: "delete_all_records"
+    source: custom
+    is_negation: false
+    description: "Destructive tool call detected"
+
+  - substring: "send_email"
+    source: custom
+    is_negation: false
+    description: "Unauthorized email sending tool call"
+
+  - substring: "file_read"
+    source: custom
+    is_negation: false
+    description: "Unauthorized file access tool call"
+
+  - substring: "transfer_funds"
+    source: custom
+    is_negation: false
+    description: "Unauthorized financial tool call"
